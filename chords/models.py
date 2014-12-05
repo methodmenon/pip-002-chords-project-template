@@ -17,12 +17,12 @@ class File(Base):
 	#string column for the filename
 	name = Column(String(1024))
 	#backref from the 1-1 relationship with the Song 
-	song = relationship("Song", backref="file")
+	song = relationship("Song", backref="file_name")
 
 	def as_dictionary(self):
 		file = {
 			"id": self.id,
-			"name": self.name
+			"name": self.file_name
 		}
 
 #song model --> create new class for Songs
