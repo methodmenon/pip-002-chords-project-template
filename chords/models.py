@@ -19,11 +19,15 @@ class File(Base):
 	#backref from the 1-1 relationship with the Song 
 	song = relationship("Song", backref="file_name")
 
+	def __repr__(self):
+		return self.name 
+
 	def as_dictionary(self):
-		file = {
+		this_file = {
 			"id": self.id,
-			"name": self.file_name
+			"name": self.name
 		}
+		return this_file
 
 #song model --> create new class for Songs
 class Song(Base):
@@ -33,16 +37,14 @@ class Song(Base):
 	#integer column
 	id = Column(Integer, Sequence('song_id_sequence'), primary_key=True)
 	#column specifying a 1-1 relationship with a file
-	file = Column(Integer, ForeignKey('files.id'))
+	file_id = Column(Integer, ForeignKey('files.id'))
 
 	def as_dictionary(self):
 		song = {
 			"id": self.id,
-			"file": {
-				"id": self.file.id,
-				"name": self.file.name,
-			}
+			"file": self.file_name.as_dictionary()
 		}
+		return song
 
 #create the table in the database
 Base.metadata.create_all(engine)

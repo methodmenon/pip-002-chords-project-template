@@ -23,9 +23,15 @@ def songs_get():
 	return Response(data, 200, mimetype="application/json")
 
 #endpoint for returning a single song
-@app.route("/api/song/<id:song_id>", methods=["GET"])
-def song_get(song_id):
+@app.route("/api/songs/<int:id>", methods=["GET"])
+def song_get(id):
 	song = session.query(models.Song).get(id)
+
+	if not song:
+		if not song:
+			message = "Could not find song with id {}".format(id)
+			data = json.dumps({"message": message})
+			return Response(data, 404, mimetype="application/json")
 
 	data = json.dumps(song.as_dictionary())
 	return Response(data, 200, mimetype="application/json")
@@ -33,6 +39,7 @@ def song_get(song_id):
 
 #endpoint for adding a new song to the database
 @app.route("/api/songs", methods=["POST"])
+def song_post():
 	data = request.json
 
 	song = models.Song(file_name=data["file_name"])

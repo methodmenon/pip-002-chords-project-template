@@ -34,3 +34,34 @@ class TestAPI(unittest.TestCase):
         # Delete test upload folder
         shutil.rmtree(upload_path())
 
+    def testGetSongs(self):
+        """getting a list of songs"""
+        songA = models.Song(file_name=models.File(name="songA.mp3"))
+        songB = models.Song(file_name=models.File(name="songB.mp3"))
+        songC = models.Song(file_name=models.File(name="songC.mp3"))
+        session.add_all([songA, songB, songC])
+        session.commit()
+
+        response = self.client.get("/api/songs")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype,"application/json")
+
+        data = json.loads(response.data)
+
+        songA = data[0]
+        self.assertEqual(songA["id"], 1)
+        self.assertEqual(songA["file"]["id"], 1)
+        self.assertEqual(songA["file"]["name"], "songA.mp3")
+
+        songB = data[1]
+        self.assertEqual(songB["id"], 2)
+        self.assertEqual(songB["file"]["id"], 2)
+        self.assertEqual(songB["file"]["name"], "songB.mp3")
+
+        songC = data[2]
+        self.assertEqual(songC["id"], 3)
+        self.assertEqual(songC["file"]["id"], 3)
+        self.assertEqual(songC["file"]["name"], "songC.mp3")
+
+
