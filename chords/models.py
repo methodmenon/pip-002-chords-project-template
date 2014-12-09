@@ -17,7 +17,7 @@ class File(Base):
 	#string column for the filename
 	name = Column(String(1024))
 	#backref from the 1-1 relationship with the Song 
-	song = relationship("Song", backref="file_name")
+	song = relationship("Song", backref="file")
 
 	def __repr__(self):
 		return self.name 
@@ -42,7 +42,7 @@ class Song(Base):
 	def as_dictionary(self):
 		song = {
 			"id": self.id,
-			"file": self.file_name.as_dictionary()
+			"file": self.file.as_dictionary()
 		}
 		return song
 

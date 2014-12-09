@@ -36,9 +36,9 @@ class TestAPI(unittest.TestCase):
 
     def testGetSongs(self):
         """getting a list of songs"""
-        songA = models.Song(file_name=models.File(name="songA.mp3"))
-        songB = models.Song(file_name=models.File(name="songB.mp3"))
-        songC = models.Song(file_name=models.File(name="songC.mp3"))
+        songA = models.Song(file=models.File(name="songA.mp3"))
+        songB = models.Song(file=models.File(name="songB.mp3"))
+        songC = models.Song(file=models.File(name="songC.mp3"))
         session.add_all([songA, songB, songC])
         session.commit()
 
@@ -64,4 +64,43 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(songC["file"]["id"], 3)
         self.assertEqual(songC["file"]["name"], "songC.mp3")
 
+    def testGetSong(self):
+        """getting a specific song by the song's id"""
+        songA = models.Song(file=models.File(name="songA.mp3"))
+        songB = models.Song(file=models.File(name="songB.mp3"))
+        session.add_all([songA, songB])
+        session.commit()
+
+        response = self.client.get("/api/songs/{}".format(songB.id))
+        data = json.loads(response.data)
+
+        self.assertEqual(data["id"], 2)
+        self.assertEqual(data["file"]["name"], "songB.mp3")
+
+    def testSongPost(self):
+        """adding a song"""
+        data = {
+            "file":{
+                "id":1,
+                "name": "songA.mp3"
+            }
+        }
+
+        response = self.client.post("/api/songs",
+            data=json.dumps(data))
+
+        print response
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.mimetype, "application/json")
+
+        self.assertEqual(urlparse(response.headers.get("Location")).path, "/api/songs/1")
+
+        data = json.loads(response.data)
+        self.assertEqual(data["id"], 1)
+        self.assertEqual(data["file"]["id"], 1)
+        self.assertEqual(data["file"]["name"], "songA.mp3")
+
+        songs = session.query(models.Song).all()
+        self.assertEqual(len(songs), 1)
 
