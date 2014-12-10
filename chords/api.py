@@ -42,7 +42,9 @@ def song_get(id):
 def song_post():
 	data = request.json
 
-	song = models.Song(file=data["file"])
+	print data 
+
+	song = models.Song(file=models.File(name=data['file']['name']))
 	session.add(song)
 	session.commit()
 

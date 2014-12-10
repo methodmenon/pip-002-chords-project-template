@@ -80,16 +80,17 @@ class TestAPI(unittest.TestCase):
     def testSongPost(self):
         """adding a song"""
         data = {
-            "file":{
+            "file":
+            {
                 "id":1,
                 "name": "songA.mp3"
-            }
+                }
         }
 
         response = self.client.post("/api/songs",
-            data=json.dumps(data))
-
-        print response
+            data=json.dumps(data),
+            content_type="application/json"
+            )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.mimetype, "application/json")
@@ -103,4 +104,9 @@ class TestAPI(unittest.TestCase):
 
         songs = session.query(models.Song).all()
         self.assertEqual(len(songs), 1)
+
+        song = songs[0]
+        self.assertEqual(song.id, 1)
+        self.assertEqual(song.file.id, 1)
+        self.assertEqual(song.file.name, "songA.mp3")
 
