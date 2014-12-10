@@ -42,7 +42,9 @@ class TestAPI(unittest.TestCase):
         session.add_all([songA, songB, songC])
         session.commit()
 
-        response = self.client.get("/api/songs")
+        response = self.client.get("/api/songs",
+            headers=[("Accept", "application/json")]
+            )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype,"application/json")
@@ -71,11 +73,25 @@ class TestAPI(unittest.TestCase):
         session.add_all([songA, songB])
         session.commit()
 
-        response = self.client.get("/api/songs/{}".format(songB.id))
+        response = self.client.get("/api/songs/{}".format(songB.id),
+            headers=[("Accept", "application/json")]
+            )
         data = json.loads(response.data)
 
         self.assertEqual(data["id"], 2)
         self.assertEqual(data["file"]["name"], "songB.mp3")
+
+    def testGetNonExistentSong(self):
+        """getting song which does not exist"""
+        response = self.client.get("/api/songs/1",
+            headers=[("Accept", "application/json")]
+            )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data)
+        self.assertEqual(data["message"], "Could not find song with id 1")
 
     def testSongPost(self):
         """adding a song"""
@@ -89,7 +105,8 @@ class TestAPI(unittest.TestCase):
 
         response = self.client.post("/api/songs",
             data=json.dumps(data),
-            content_type="application/json"
+            content_type="application/json",
+            headers=[("Accept", "application/json")]
             )
 
         self.assertEqual(response.status_code, 201)
@@ -110,3 +127,16 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(song.file.id, 1)
         self.assertEqual(song.file.name, "songA.mp3")
 
+    def testUnsupportedAcceptHeader(self):
+        response = self.client.get("/api/songs",
+            headers = [("Accept", "application/xml")]
+            )
+
+        self.assertEqual(response.status_code, 406)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data)
+        self.assertEqual(data["message"], "Request must accept application/json data")
+
+ ##add test for Invalid data
+ 

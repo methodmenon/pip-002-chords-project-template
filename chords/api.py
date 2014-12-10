@@ -14,6 +14,7 @@ from utils import upload_path
 
 #endpoint for returning a list of all the songs
 @app.route("/api/songs", methods=["GET"])
+@decorators.accept("application/json")
 def songs_get():
 	songs = session.query(models.Song)
 	songs = songs.all()
@@ -24,6 +25,7 @@ def songs_get():
 
 #endpoint for returning a single song
 @app.route("/api/songs/<int:id>", methods=["GET"])
+@decorators.accept("application/json")
 def song_get(id):
 	song = session.query(models.Song).get(id)
 
@@ -39,6 +41,8 @@ def song_get(id):
 
 #endpoint for adding a new song to the database
 @app.route("/api/songs", methods=["POST"])
+@decorators.accept("application/json")
+@decorators.require("application/json")
 def song_post():
 	data = request.json
 
