@@ -20,7 +20,7 @@ class File(Base):
 	song = relationship("Song", backref="file")
 
 	def __repr__(self):
-		return self.name 
+		return "File(name=%r)" % self.name
 
 	def as_dictionary(self):
 		this_file = {
