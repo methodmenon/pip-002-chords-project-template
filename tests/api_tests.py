@@ -127,6 +127,59 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(song.file.id, 1)
         self.assertEqual(song.file.name, "songA.mp3")
 
+    def testSongEdit(self):
+        """editing a song"""
+        #add 3 songs to the database
+        songA = models.Song(file=models.File(name="songA.mp3"))
+        songB = models.Song(file=models.File(name="songB.mp3"))
+        songC = models.Song(file=models.File(name="songC.mp3"))
+        session.add_all([songA, songB, songC])
+        session.commit()
+
+        #edit song with new data
+        data = {
+            "file": {
+                "id": 2,
+                "name": "new songB.mp3"        
+            }
+        }
+
+        response = self.client.post("/api/songs/{}".format(songB.id),
+            data=json.dumps(data),
+            content_type="application/json",
+            headers=[("Accept", "application/json")]
+            )
+
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.mimetype, "application/json")
+        self.assertEqual(urlparse(response.headers.get("Location")).path,"/api/songs/2")
+
+
+        data = json.loads(response.data)
+        self.assertEqual(data["id"], 2)
+        self.assertEqual(data["file"]["id"], 2)
+        self.assertEqual(data["file"]["name"], "new songB.mp3")
+
+        #making sure 3 songs still exist in the database
+        songs = session.query(models.Song).all()
+        self.assertEqual(len(songs), 3)
+
+        songA = songs[0]
+        self.assertEqual(songA.id, 1)
+        self.assertEqual(songA.file.id, 1)
+        self.assertEqual(songA.file.name, "songA.mp3")
+
+        songB = songs[1]
+        self.assertEqual(songB.id, 2)
+        self.assertEqual(songB.file.id, 2)
+        self.assertEqual(songB.file.name, "new songB.mp3")
+
+        songC = songs[2]
+        self.assertEqual(songC.id, 3)
+        self.assertEqual(songC.file.id, 3)
+        self.assertEqual(songC.file.name, "songC.mp3")
+
     def testUnsupportedAcceptHeader(self):
         response = self.client.get("/api/songs",
             headers = [("Accept", "application/xml")]
@@ -139,4 +192,3 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(data["message"], "Request must accept application/json data")
 
  ##add test for Invalid data
- 

@@ -39,6 +39,7 @@ def song_get(id):
 	return Response(data, 200, mimetype="application/json")
 
 
+
 #endpoint for adding a new song to the database
 @app.route("/api/songs", methods=["POST"])
 @decorators.accept("application/json")
@@ -54,6 +55,23 @@ def song_post():
 
 	data = json.dumps(song.as_dictionary())
 	headers = {"Location": url_for("song_get", id=song.id)}
+
+	return Response(data, 201, headers=headers, mimetype="application/json")
+
+#endpoint for editing a song
+@app.route("/api/songs/<int:id>", methods=["POST"])
+@decorators.accept("application/json")
+@decorators.require("application/json")
+def song_edit(id):
+	song = session.query(models.Song).filter(models.Song.id==id).first()
+	data = request.json
+
+	song.file.id = data["file"]["id"]
+	song.file.name = data["file"]["name"]
+	session.commit()
+
+	data = json.dumps(song.as_dictionary())
+	headers = {"Location": url_for("song_get", id=id)}
 
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
