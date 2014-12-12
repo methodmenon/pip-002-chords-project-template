@@ -12,18 +12,19 @@ from chords import app
 from database import session
 from utils import upload_path
 
-#endpoint for returning a list of all the songs
+
+"""endpoint for returning a list of all the songs"""
 @app.route("/api/songs", methods=["GET"])
 @decorators.accept("application/json")
 def songs_get():
 	songs = session.query(models.Song)
 	songs = songs.all()
 
-	#return the list of songs as JSON
+	"""return the list of songs as JSON"""
 	data = json.dumps([song.as_dictionary() for song in songs])
 	return Response(data, 200, mimetype="application/json")
 
-#endpoint for returning a single song
+"""endpoint for returning a single song"""
 @app.route("/api/songs/<int:id>", methods=["GET"])
 @decorators.accept("application/json")
 def song_get(id):
@@ -40,7 +41,7 @@ def song_get(id):
 
 
 
-#endpoint for adding a new song to the database
+"""endpoint for adding a new song to the database"""
 @app.route("/api/songs", methods=["POST"])
 @decorators.accept("application/json")
 @decorators.require("application/json")
@@ -58,7 +59,7 @@ def song_post():
 
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
-#endpoint for editing a song
+"""endpoint for editing a song"""
 @app.route("/api/songs/<int:id>", methods=["POST"])
 @decorators.accept("application/json")
 @decorators.require("application/json")
@@ -75,6 +76,30 @@ def song_edit(id):
 
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
+"""endpoint for accessing a file"""
+@app.route("/uploads/<filename>", methods=["GET"])
+def uploaded_file(filename):
+	#Flask's send_from_directory function to serve the file from the upload path
+	return send_from_directory(upload_path(), filename)
+
+"""endpoint for handling the file uploads"""
+@app.route("/api/files", methods=["POST"])
+@decorators.require("multipart/form-data")
+@decorators.accept("application/json")
+def file_post():
+	file = request.files.get("file")
+	if not file:
+		data = {"message": "Could not find file data"}
+		return Response(json.dumps(data), 422, mimetype="application/json")
+
+	filename = secure_filename(file.filename)
+	db_file = models.File(name=filename)
+	session.add(db_file)
+	session.commit()
+	file.save(upload_path(filename))
+
+	data = db_file.as_dictionary()
+	return Response(json.dumps(data), 201, mimetype="application/json")
 
 
 

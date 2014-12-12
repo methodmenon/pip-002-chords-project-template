@@ -23,11 +23,11 @@ class File(Base):
 		return "File(name=%r)" % self.name
 
 	def as_dictionary(self):
-		this_file = {
+		return {
 			"id": self.id,
-			"name": self.name
+			"name": self.name,
+			"path": url_for("uploaded_file", filename=self.name)
 		}
-		return this_file
 
 #song model --> create new class for Songs
 class Song(Base):
@@ -40,11 +40,10 @@ class Song(Base):
 	file_id = Column(Integer, ForeignKey('files.id'))
 
 	def as_dictionary(self):
-		song = {
+		return {
 			"id": self.id,
 			"file": self.file.as_dictionary()
 		}
-		return song
 
 #create the table in the database
 Base.metadata.create_all(engine)

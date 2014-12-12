@@ -192,4 +192,49 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data["message"], "Request must accept application/json data")
 
- ##add test for Invalid data
+    """test for Invalid data"""
+
+    """test for adding a file to an upload folder and then accessing it via a HTTP request"""
+    def test_get_uploaded_file(self):
+        #get location where file will exist and create the file
+        path = upload_path("test.txt")
+        #write file contents
+        with open(path, "w") as f:
+            f.write("File contents")
+
+        #response object created through the GET request to the new file
+        response = self.client.get("/uploads/test.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "text/plain")
+        self.assertEqual(response.data, "File contents")
+
+    """test for uploading a simple text file to the server"""
+    def test_file_upload(self):
+        #construct form as dictionary
+        #use instance of Python's StringIO class to simulate a file object
+        data = {
+            "file": (StringIO("File contents"), "test.txt")
+        }
+
+        #send dictionary to api/files endpoint with content-type of multipart/form-data
+        response = self.client.post("/api/files",
+            data=data,
+            content_type="multipart/form-data",
+            headers=[("Accept", "application/json")]
+            )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.mimetype, "application/json")
+
+        data = json.loads(response.data)
+        #make sure response data points to a url where the file can be accessed
+        self.assertEqual(urlparse(data["path"]).path, "/uploads/test.txt")
+
+        #make sure the file has been saved correctly in the uploads folder
+        path = upload_path("test.txt")
+        self.assertTrue(os.path.isfile(path))
+        with open(path) as f:
+            contents = f.read()
+        self.assertEqual(contents, "File contents")
+
