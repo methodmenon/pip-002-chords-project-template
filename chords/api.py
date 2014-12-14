@@ -50,7 +50,7 @@ def song_post():
 
 	print data 
 
-	song = models.Song(file=models.File(name=data['file']['name']))
+	song = models.Song(file=models.File(filename=data['file']['name']))
 	session.add(song)
 	session.commit()
 
@@ -68,7 +68,7 @@ def song_edit(id):
 	data = request.json
 
 	song.file.id = data["file"]["id"]
-	song.file.name = data["file"]["name"]
+	song.file.filename = data["file"]["filename"]
 	session.commit()
 
 	data = json.dumps(song.as_dictionary())
@@ -79,7 +79,8 @@ def song_edit(id):
 """endpoint for accessing a file"""
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploaded_file(filename):
-	#Flask's send_from_directory function to serve the file from the upload path
+	"""send_from_directory function -> send a file from the given directory using send_file()"""
+	"""where send_file()-> send contents of a file to a client, using the most efficient way possible"""
 	return send_from_directory(upload_path(), filename)
 
 """endpoint for handling the file uploads"""
@@ -87,17 +88,22 @@ def uploaded_file(filename):
 @decorators.require("multipart/form-data")
 @decorators.accept("application/json")
 def file_post():
+	#try to access uploaded file from Flask's request.files dictionary
 	file = request.files.get("file")
 	if not file:
 		data = {"message": "Could not find file data"}
 		return Response(json.dumps(data), 422, mimetype="application/json")
 
+	#secure_filename() --> function(from Werkzeug) which creates a safe version of the filename supplied by client
 	filename = secure_filename(file.filename)
-	db_file = models.File(name=filename)
+	#use the secure filename to create a File object and add it to the database and commit
+	db_file = models.File(filename=filename)
 	session.add(db_file)
 	session.commit()
+	#save file to an upload folder using our upload_path() function
 	file.save(upload_path(filename))
 
+	#return file information
 	data = db_file.as_dictionary()
 	return Response(json.dumps(data), 201, mimetype="application/json")
 

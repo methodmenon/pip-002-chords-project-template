@@ -15,18 +15,18 @@ class File(Base):
 	#integer id column
 	id = Column(Integer, Sequence('file_id_sequence'), primary_key=True)
 	#string column for the filename
-	name = Column(String(1024))
+	filename = Column(String(1024))
 	#backref from the 1-1 relationship with the Song 
 	song = relationship("Song", backref="file")
 
 	def __repr__(self):
-		return "File(name=%r)" % self.name
+		return "File(name=%r)" % self.filename
 
 	def as_dictionary(self):
 		return {
 			"id": self.id,
-			"name": self.name,
-			"path": url_for("uploaded_file", filename=self.name)
+			"name": self.filename,
+			"path": url_for("uploaded_file", filename=self.filename)
 		}
 
 #song model --> create new class for Songs

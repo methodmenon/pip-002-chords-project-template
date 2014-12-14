@@ -36,9 +36,9 @@ class TestAPI(unittest.TestCase):
 
     def testGetSongs(self):
         """getting a list of songs"""
-        songA = models.Song(file=models.File(name="songA.mp3"))
-        songB = models.Song(file=models.File(name="songB.mp3"))
-        songC = models.Song(file=models.File(name="songC.mp3"))
+        songA = models.Song(file=models.File(filename="songA.mp3"))
+        songB = models.Song(file=models.File(filename="songB.mp3"))
+        songC = models.Song(file=models.File(filename="songC.mp3"))
         session.add_all([songA, songB, songC])
         session.commit()
 
@@ -68,8 +68,8 @@ class TestAPI(unittest.TestCase):
 
     def testGetSong(self):
         """getting a specific song by the song's id"""
-        songA = models.Song(file=models.File(name="songA.mp3"))
-        songB = models.Song(file=models.File(name="songB.mp3"))
+        songA = models.Song(file=models.File(filename="songA.mp3"))
+        songB = models.Song(file=models.File(filename="songB.mp3"))
         session.add_all([songA, songB])
         session.commit()
 
@@ -125,14 +125,14 @@ class TestAPI(unittest.TestCase):
         song = songs[0]
         self.assertEqual(song.id, 1)
         self.assertEqual(song.file.id, 1)
-        self.assertEqual(song.file.name, "songA.mp3")
+        self.assertEqual(song.file.filename, "songA.mp3")
 
     def testSongEdit(self):
         """editing a song"""
         #add 3 songs to the database
-        songA = models.Song(file=models.File(name="songA.mp3"))
-        songB = models.Song(file=models.File(name="songB.mp3"))
-        songC = models.Song(file=models.File(name="songC.mp3"))
+        songA = models.Song(file=models.File(filename="songA.mp3"))
+        songB = models.Song(file=models.File(filename="songB.mp3"))
+        songC = models.Song(file=models.File(filename="songC.mp3"))
         session.add_all([songA, songB, songC])
         session.commit()
 
@@ -141,7 +141,7 @@ class TestAPI(unittest.TestCase):
         data = {
             "file": {
                 "id": 2,
-                "name": "new songB.mp3"        
+                "filename": "new songB.mp3"        
             }
         }
 
@@ -169,17 +169,17 @@ class TestAPI(unittest.TestCase):
         songA = songs[0]
         self.assertEqual(songA.id, 1)
         self.assertEqual(songA.file.id, 1)
-        self.assertEqual(songA.file.name, "songA.mp3")
+        self.assertEqual(songA.file.filename, "songA.mp3")
 
         songB = songs[1]
         self.assertEqual(songB.id, 2)
         self.assertEqual(songB.file.id, 2)
-        self.assertEqual(songB.file.name, "new songB.mp3")
+        self.assertEqual(songB.file.filename, "new songB.mp3")
 
         songC = songs[2]
         self.assertEqual(songC.id, 3)
         self.assertEqual(songC.file.id, 3)
-        self.assertEqual(songC.file.name, "songC.mp3")
+        self.assertEqual(songC.file.filename, "songC.mp3")
 
     def testUnsupportedAcceptHeader(self):
         response = self.client.get("/api/songs",
