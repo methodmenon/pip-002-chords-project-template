@@ -25,8 +25,8 @@ class File(Base):
 	def as_dictionary(self):
 		return {
 			"id": self.id,
-			"name": self.filename,
-			"path": url_for("uploaded_file", filename=self.filename)
+			"filename": self.filename,
+			#"path": url_for("uploaded_file", filename=self.name)
 		}
 
 #song model --> create new class for Songs
