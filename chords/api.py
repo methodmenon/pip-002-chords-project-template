@@ -48,9 +48,9 @@ def song_get(id):
 def song_post():
 	data = request.json
 
-	print data 
+	print data
 
-	song = models.Song(file=models.File(name=data['file']['name']))
+	song = models.Song(file=models.File(filename=data['file']['filename']))
 	session.add(song)
 	session.commit()
 
@@ -68,22 +68,24 @@ def song_edit(id):
 	data = request.json
 
 	song.file.id = data["file"]["id"]
-	song.file.name = data["file"]["name"]
+	song.file.filename = data["file"]["filename"]
 	session.commit()
 
 	data = json.dumps(song.as_dictionary())
 	headers = {"Location": url_for("song_get", id=id)}
 
 	return Response(data, 201, headers=headers, mimetype="application/json")
-"""
-#endpoint for accessing a file
+
+"""endpoint for accessing a file"""
 @app.route("/uploads/<filename>", methods=["GET"])
 def uploaded_file(filename):
-	#end_from_directory function -> send a file from the given directory using send_file()
-	#where send_file()-> send contents of a file to a client, using the most efficient way possible
+	"""
+	end_from_directory function -> send a file from the given directory using send_file()
+	where send_file()-> send contents of a file to a client, using the most efficient way possible
+	"""
 	return send_from_directory(upload_path(), filename)
 
-#endpoint for handling the file uploads
+"""endpoint for handling the file uploads"""
 @app.route("/api/files", methods=["POST"])
 @decorators.require("multipart/form-data")
 @decorators.accept("application/json")
@@ -106,6 +108,5 @@ def file_post():
 	#return file information
 	data = db_file.as_dictionary()
 	return Response(json.dumps(data), 201, mimetype="application/json")
-"""
 
 

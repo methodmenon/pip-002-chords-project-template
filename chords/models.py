@@ -26,7 +26,7 @@ class File(Base):
 		return {
 			"id": self.id,
 			"filename": self.filename,
-			#"path": url_for("uploaded_file", filename=self.name)
+			"path": url_for("uploaded_file", filename=self.filename)
 		}
 
 #song model --> create new class for Songs
