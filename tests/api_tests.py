@@ -79,6 +79,7 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data)
 
         self.assertEqual(data["id"], 2)
+        print("data is {}".format(data))
         self.assertEqual(data["file"]["filename"], "songB.mp3")
 
     def testGetNonExistentSong(self):
@@ -98,9 +99,9 @@ class TestAPI(unittest.TestCase):
         data = {
             "file":
             {
-                "id":1,
-                "filename": "songA.mp3"
-                }
+                "id": 7,
+                "filename": "songA.mp3" 
+            }
         }
 
         response = self.client.post("/api/songs",
@@ -115,6 +116,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(urlparse(response.headers.get("Location")).path, "/api/songs/1")
 
         data = json.loads(response.data)
+        print ("data is {}".format(data))
         self.assertEqual(data["id"], 1)
         self.assertEqual(data["file"]["id"], 1)
         self.assertEqual(data["file"]["filename"], "songA.mp3")
@@ -123,6 +125,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(len(songs), 1)
 
         song = songs[0]
+        print ("database data is {}".format(song))
         self.assertEqual(song.id, 1)
         self.assertEqual(song.file.id, 1)
         self.assertEqual(song.file.filename, "songA.mp3")
@@ -228,6 +231,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.mimetype, "application/json")
 
         data = json.loads(response.data)
+        print ("data is {}".format(data))
         #make sure response data points to a url where the file can be accessed
         self.assertEqual(urlparse(data["path"]).path, "/uploads/test.txt")
 

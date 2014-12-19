@@ -48,7 +48,7 @@ def song_get(id):
 def song_post():
 	data = request.json
 
-	print data
+	print("song_post data {}".format(data))
 
 	song = models.Song(file=models.File(filename=data['file']['filename']))
 	session.add(song)
@@ -57,6 +57,8 @@ def song_post():
 	data = json.dumps(song.as_dictionary())
 	headers = {"Location": url_for("song_get", id=song.id)}
 
+	response_info = Response(data, 201, headers=headers, mimetype="application/json")
+	print ("song_post response inf {}".format(response_info.data))
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
 """endpoint for editing a song"""
