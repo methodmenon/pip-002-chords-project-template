@@ -37,6 +37,7 @@ def song_get(id):
 			return Response(data, 404, mimetype="application/json")
 
 	data = json.dumps(song.as_dictionary())
+	print ("data from song_get() is {}".format(data))
 	return Response(data, 200, mimetype="application/json")
 
 
@@ -48,7 +49,7 @@ def song_get(id):
 def song_post():
 	data = request.json
 
-	print("song_post data {}".format(data))
+	print("data from request.json in song_post() is {}".format(data))
 
 	song = models.Song(file=models.File(filename=data['file']['filename']))
 	session.add(song)
@@ -85,6 +86,7 @@ def uploaded_file(filename):
 	end_from_directory function -> send a file from the given directory using send_file()
 	where send_file()-> send contents of a file to a client, using the most efficient way possible
 	"""
+	print ("filename is {}".filename)
 	return send_from_directory(upload_path(), filename)
 
 """endpoint for handling the file uploads"""
@@ -109,6 +111,7 @@ def file_post():
 
 	#return file information
 	data = db_file.as_dictionary()
+	print ("file data from file_post() is {}".format(data))
 	return Response(json.dumps(data), 201, mimetype="application/json")
 
 

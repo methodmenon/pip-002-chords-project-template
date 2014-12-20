@@ -52,6 +52,7 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data)
 
         songA = data[0]
+        print (songA)
         self.assertEqual(songA["id"], 1)
         self.assertEqual(songA["file"]["id"], 1)
         self.assertEqual(songA["file"]["filename"], "songA.mp3")
@@ -97,9 +98,9 @@ class TestAPI(unittest.TestCase):
     def testSongPost(self):
         """adding a song"""
         data = {
-            "file":
-            {
-                "id": 7,
+            "id":1,
+            "file":{
+                "id": 1,
                 "filename": "songA.mp3" 
             }
         }
