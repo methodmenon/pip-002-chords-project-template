@@ -31,10 +31,9 @@ def song_get(id):
 	song = session.query(models.Song).get(id)
 
 	if not song:
-		if not song:
-			message = "Could not find song with id {}".format(id)
-			data = json.dumps({"message": message})
-			return Response(data, 404, mimetype="application/json")
+		message = "Could not find song with id {}".format(id)
+		data = json.dumps({"message": message})
+		return Response(data, 404, mimetype="application/json")
 
 	data = json.dumps(song.as_dictionary())
 	print ("data from song_get() is {}".format(data))
@@ -50,8 +49,8 @@ def song_post():
 	data = request.json
 
 	print("data from request.json in song_post() is {}".format(data))
-
-	song = models.Song(file=models.File(filename=data['file']['filename']))
+	print(session.query(models.File).get(data['file']['id']))
+	song = models.Song(file=session.query(models.File).get(data['file']['id']))
 	session.add(song)
 	session.commit()
 
