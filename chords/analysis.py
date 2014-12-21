@@ -50,6 +50,10 @@ CHORD_NAMES = numpy.array([#"A", "Am",
                "A#", "A#m",
                "B", "Bm"])
 
+"""Analyse function:
+Takes path to file as an argument
+Returns a dictionary containing the results of the analysis
+"""
 def analyse(filename, resample_to=2756, bt_hop_length=128,
             chroma_hop_length=512, chroma_n_fft=1024):
     samples, sampleRate = librosa.load(filename)

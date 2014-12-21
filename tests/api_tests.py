@@ -55,17 +55,17 @@ class TestAPI(unittest.TestCase):
         print (songA)
         self.assertEqual(songA["id"], 1)
         self.assertEqual(songA["file"]["id"], 1)
-        self.assertEqual(songA["file"]["filename"], "songA.mp3")
+        self.assertEqual(songA["file"]["name"], "songA.mp3")
 
         songB = data[1]
         self.assertEqual(songB["id"], 2)
         self.assertEqual(songB["file"]["id"], 2)
-        self.assertEqual(songB["file"]["filename"], "songB.mp3")
+        self.assertEqual(songB["file"]["name"], "songB.mp3")
 
         songC = data[2]
         self.assertEqual(songC["id"], 3)
         self.assertEqual(songC["file"]["id"], 3)
-        self.assertEqual(songC["file"]["filename"], "songC.mp3")
+        self.assertEqual(songC["file"]["name"], "songC.mp3")
 
     def testGetSong(self):
         """getting a specific song by the song's id"""
@@ -81,7 +81,7 @@ class TestAPI(unittest.TestCase):
 
         self.assertEqual(data["id"], 2)
         print("data is {}".format(data))
-        self.assertEqual(data["file"]["filename"], "songB.mp3")
+        self.assertEqual(data["file"]["name"], "songB.mp3")
 
     def testGetNonExistentSong(self):
         """getting song which does not exist"""
@@ -95,15 +95,20 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data["message"], "Could not find song with id 1")
 
-    """
-    test for song post on hold because not sure how format is to be
+    
+    #test for song post on hold because not sure how format is to be
 
     def testSongPost(self):
-        #adding a song
+        """adding a song"""
+        #first make sure the file exits by adding it to the db
+        songA_file = models.File(id=7, filename="songA.mp3")
+        session.add(songA_file)
+        session.commit()
+
+        #simulate song post (file already in database)
         data = {
             "file":{
-                "id": 1,
-                "filename": "songA.mp3" 
+                "id": 7
             }
         }
 
@@ -120,9 +125,9 @@ class TestAPI(unittest.TestCase):
 
         data = json.loads(response.data)
         print ("data is {}".format(data))
-        #self.assertEqual(data["id"], 1)
-        self.assertEqual(data["file"]["id"], 1)
-        self.assertEqual(data["file"]["filename"], "songA.mp3")
+        self.assertEqual(data["id"], 1)
+        self.assertEqual(data["file"]["id"], 7)
+        self.assertEqual(data["file"]["name"], "songA.mp3")
 
         songs = session.query(models.Song).all()
         self.assertEqual(len(songs), 1)
@@ -130,24 +135,29 @@ class TestAPI(unittest.TestCase):
         song = songs[0]
         print ("database data is {}".format(song))
         self.assertEqual(song.id, 1)
-        self.assertEqual(song.file.id, 1)
-        self.assertEqual(song.file.filename, "songA.mp3")"""
+        self.assertEqual(song.file.id, 7)
+        self.assertEqual(song.file.filename, "songA.mp3")
 
     def testSongEdit(self):
         """editing a song"""
         #add 3 songs to the database
-        songA = models.Song(file=models.File(filename="songA.mp3"))
-        songB = models.Song(file=models.File(filename="songB.mp3"))
-        songC = models.Song(file=models.File(filename="songC.mp3"))
+        """need to make sure the files exist for each song being added
+        so need to add them to files table in database so we can simulate 
+        a song file"""
+        songA = models.File(id=1, filename="songA.mp3")
+        songB = models.File(id=2, filename="songB.mp3")
+        songC = models.File(id=3, filename="songC.mp3")
         session.add_all([songA, songB, songC])
         session.commit()
 
-        #edit song with new data
-
+        """Original way files added NOT CORRECT
+        songA = models.Song(file=models.File(filename="songA.mp3"))
+        songB = models.Song(file=models.File(filename="songB.mp3"))
+        songC = models.Song(file=models.File(filename="songC.mp3"))
+        """
         data = {
             "file": {
-                "id": 2,
-                "filename": "new songB.mp3"        
+                "id": 2,        
             }
         }
 
@@ -166,7 +176,7 @@ class TestAPI(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data["id"], 2)
         self.assertEqual(data["file"]["id"], 2)
-        self.assertEqual(data["file"]["filename"], "new songB.mp3")
+        self.assertEqual(data["file"]["name"], "new songB.mp3")
 
         #making sure 3 songs still exist in the database
         songs = session.query(models.Song).all()

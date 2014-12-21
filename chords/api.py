@@ -17,8 +17,8 @@ from utils import upload_path
 @app.route("/api/songs", methods=["GET"])
 @decorators.accept("application/json")
 def songs_get():
-	songs = session.query(models.Song)
-	songs = songs.all()
+	#get a lit of songs
+	songs = session.query(models.Song).all()
 
 	"""return the list of songs as JSON"""
 	data = json.dumps([song.as_dictionary() for song in songs])
@@ -47,11 +47,11 @@ def song_get(id):
 @decorators.require("application/json")
 def song_post():
 	data = request.json
-
+	song = models.Song(file_id=data['file']['id'])
 	print("data from request.json in song_post() is {}".format(data))
 	print ("data from ['file']['id'] is {}".format(data['file']['id']))
-	print("session.query(models.File).get(data['file']['id']) is {}".format(session.query(models.File).get(data['file']['id'])))
-	song = models.Song(file=session.query(models.File).get(data['file']['id']))
+	#print("session.query(models.File).get(data['file']['id']) is {}".format(session.query(models.File).get(data['file']['id'])))
+	#song = models.Song(file=session.query(models.File).get(data['file']['id']))
 	session.add(song)
 	session.commit()
 
