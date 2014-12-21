@@ -49,7 +49,8 @@ def song_post():
 	data = request.json
 
 	print("data from request.json in song_post() is {}".format(data))
-	print(session.query(models.File).get(data['file']['id']))
+	print ("data from ['file']['id'] is {}".format(data['file']['id']))
+	print("session.query(models.File).get(data['file']['id']) is {}".format(session.query(models.File).get(data['file']['id'])))
 	song = models.Song(file=session.query(models.File).get(data['file']['id']))
 	session.add(song)
 	session.commit()
@@ -62,7 +63,7 @@ def song_post():
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
 """endpoint for editing a song"""
-@app.route("/api/songs/<int:id>", methods=["POST"])
+@app.route("/api/songs/<int:id>", methods=["PUT"])
 @decorators.accept("application/json")
 @decorators.require("application/json")
 def song_edit(id):
@@ -85,7 +86,6 @@ def uploaded_file(filename):
 	end_from_directory function -> send a file from the given directory using send_file()
 	where send_file()-> send contents of a file to a client, using the most efficient way possible
 	"""
-	print ("filename is {}".filename)
 	return send_from_directory(upload_path(), filename)
 
 """endpoint for handling the file uploads"""
@@ -112,5 +112,3 @@ def file_post():
 	data = db_file.as_dictionary()
 	print ("file data from file_post() is {}".format(data))
 	return Response(json.dumps(data), 201, mimetype="application/json")
-
-

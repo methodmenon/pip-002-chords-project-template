@@ -47,5 +47,3 @@ class Song(Base):
 
 #create the table in the database
 Base.metadata.create_all(engine)
-
-
