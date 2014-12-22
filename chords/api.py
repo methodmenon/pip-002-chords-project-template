@@ -17,11 +17,22 @@ from utils import upload_path
 @app.route("/api/songs", methods=["GET"])
 @decorators.accept("application/json")
 def songs_get():
-	#get a lit of songs
 	songs = session.query(models.Song).all()
+	files = session.query(models.File).all()
 
 	"""return the list of songs as JSON"""
 	data = json.dumps([song.as_dictionary() for song in songs])
+	"""
+	following query and print statements is to view data 
+	from both tables in the database
+	"""
+	file_data = json.dumps([file.as_dictionary() for file in files])
+	#begin print statements
+	print("songs_get data is {}".format(data))
+	print ""
+	print ""
+	print("files info is {}".format(file_data))
+	##end of print statements
 	return Response(data, 200, mimetype="application/json")
 
 """endpoint for returning a single song"""
@@ -36,7 +47,6 @@ def song_get(id):
 		return Response(data, 404, mimetype="application/json")
 
 	data = json.dumps(song.as_dictionary())
-	print ("data from song_get() is {}".format(data))
 	return Response(data, 200, mimetype="application/json")
 
 
@@ -63,15 +73,15 @@ def song_post():
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
 """endpoint for editing a song"""
-@app.route("/api/songs/<int:id>", methods=["PUT"])
+@app.route("/api/songs/<int:id>", methods=["POST"])
 @decorators.accept("application/json")
 @decorators.require("application/json")
 def song_edit(id):
-	song = session.query(models.Song).filter(models.Song.id==id).first()
+	song = session.query(models.Song).get(id)
+	song_file = session.query(models.File).filter_by(id=song.id)
 	data = request.json
 
-	song.file.id = data["file"]["id"]
-	song.file.filename = data["file"]["filename"]
+	song_file.filename = data["filename"]
 	session.commit()
 
 	data = json.dumps(song.as_dictionary())

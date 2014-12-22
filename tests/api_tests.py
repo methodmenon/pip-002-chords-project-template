@@ -36,10 +36,26 @@ class TestAPI(unittest.TestCase):
 
     def testGetSongs(self):
         """getting a list of songs"""
+
+        """original test data
         songA = models.Song(file=models.File(filename="songA.mp3"))
         songB = models.Song(file=models.File(filename="songB.mp3"))
         songC = models.Song(file=models.File(filename="songC.mp3"))
         session.add_all([songA, songB, songC])
+        session.commit()
+        """
+        #add files to files table
+        songA_file = models.File(id=1, filename="songA.mp3")
+        songB_file = models.File(id=3, filename="songB.mp3")
+        songC_file = models.File(id=5, filename="songC.mp3")
+        session.add_all([songA_file, songB_file, songC_file])
+
+        #add songs to songs table
+        songA = models.Song(file_id=1)
+        songB = models.Song(file_id=3)
+        songC = models.Song(file_id=5)
+        session.add_all([songA, songB, songC])
+        
         session.commit()
 
         response = self.client.get("/api/songs",
@@ -59,19 +75,28 @@ class TestAPI(unittest.TestCase):
 
         songB = data[1]
         self.assertEqual(songB["id"], 2)
-        self.assertEqual(songB["file"]["id"], 2)
+        self.assertEqual(songB["file"]["id"], 3)
         self.assertEqual(songB["file"]["name"], "songB.mp3")
 
         songC = data[2]
         self.assertEqual(songC["id"], 3)
-        self.assertEqual(songC["file"]["id"], 3)
+        self.assertEqual(songC["file"]["id"], 5)
         self.assertEqual(songC["file"]["name"], "songC.mp3")
 
     def testGetSong(self):
         """getting a specific song by the song's id"""
-        songA = models.Song(file=models.File(filename="songA.mp3"))
-        songB = models.Song(file=models.File(filename="songB.mp3"))
-        session.add_all([songA, songB])
+        #add files to files table
+        songA_file = models.File(id=1, filename="songA.mp3")
+        songB_file = models.File(id=3, filename="songB.mp3")
+        songC_file = models.File(id=5, filename="songC.mp3")
+        session.add_all([songA_file, songB_file, songC_file])
+
+        #add songs to songs table
+        songA = models.Song(file_id=1)
+        songB = models.Song(file_id=3)
+        songC = models.Song(file_id=5)
+        session.add_all([songA, songB, songC])
+        
         session.commit()
 
         response = self.client.get("/api/songs/{}".format(songB.id),
@@ -137,31 +162,38 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(song.id, 1)
         self.assertEqual(song.file.id, 7)
         self.assertEqual(song.file.filename, "songA.mp3")
-
+    
     def testSongEdit(self):
-        """editing a song"""
+        #editing a song
         #add 3 songs to the database
-        """need to make sure the files exist for each song being added
-        so need to add them to files table in database so we can simulate 
-        a song file"""
-        songA = models.File(id=1, filename="songA.mp3")
-        songB = models.File(id=2, filename="songB.mp3")
-        songC = models.File(id=3, filename="songC.mp3")
+        #need to make sure the files exist for each song being added
+        #so need to add them to files table in database so we can simulate 
+        #a song file
+        #add files to files table
+        songA_file = models.File(id=1, filename="songA.mp3")
+        songB_file = models.File(id=3, filename="songB.mp3")
+        songC_file = models.File(id=5, filename="songC.mp3")
+        session.add_all([songA_file, songB_file, songC_file])
+
+        #add songs to files table
+        songA = models.Song(file_id=1)
+        songB = models.Song(file_id=3)
+        songC = models.Song(file_id=5)
         session.add_all([songA, songB, songC])
+
         session.commit()
 
-        """Original way files added NOT CORRECT
-        songA = models.Song(file=models.File(filename="songA.mp3"))
-        songB = models.Song(file=models.File(filename="songB.mp3"))
-        songC = models.Song(file=models.File(filename="songC.mp3"))
-        """
+        #Original way files added NOT CORRECT
+        #songA = models.Song(file=models.File(filename="songA.mp3"))
+        #songB = models.Song(file=models.File(filename="songB.mp3"))
+        #songC = models.Song(file=models.File(filename="songC.mp3"))
+        #
         data = {
-            "file": {
-                "id": 2,        
-            }
+
+            "filename": "SongB_new.mp3"    
         }
 
-        response = self.client.put("/api/songs/{}".format(songB.id),
+        response = self.client.post("/api/songs/{}".format(songB.id),
             data=json.dumps(data),
             content_type="application/json",
             headers=[("Accept", "application/json")]
@@ -174,9 +206,10 @@ class TestAPI(unittest.TestCase):
 
 
         data = json.loads(response.data)
+        print ("song_edit response data is {}".format(data))
         self.assertEqual(data["id"], 2)
-        self.assertEqual(data["file"]["id"], 2)
-        self.assertEqual(data["file"]["name"], "new songB.mp3")
+        self.assertEqual(data["file"]["id"], 3)
+        self.assertEqual(data["file"]["name"], "SongB_new.mp3")
 
         #making sure 3 songs still exist in the database
         songs = session.query(models.Song).all()
@@ -190,7 +223,7 @@ class TestAPI(unittest.TestCase):
         songB = songs[1]
         self.assertEqual(songB.id, 2)
         self.assertEqual(songB.file.id, 2)
-        self.assertEqual(songB.file.filename, "new songB.mp3")
+        self.assertEqual(songB.file.filename, "SongB_new.mp3")
 
         songC = songs[2]
         self.assertEqual(songC.id, 3)
