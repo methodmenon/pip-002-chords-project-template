@@ -222,12 +222,12 @@ class TestAPI(unittest.TestCase):
 
         songB = songs[1]
         self.assertEqual(songB.id, 2)
-        self.assertEqual(songB.file.id, 2)
+        self.assertEqual(songB.file.id, 3)
         self.assertEqual(songB.file.filename, "SongB_new.mp3")
 
         songC = songs[2]
         self.assertEqual(songC.id, 3)
-        self.assertEqual(songC.file.id, 3)
+        self.assertEqual(songC.file.id, 5)
         self.assertEqual(songC.file.filename, "songC.mp3")
 
     def testUnsupportedAcceptHeader(self):

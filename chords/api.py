@@ -22,10 +22,9 @@ def songs_get():
 
 	"""return the list of songs as JSON"""
 	data = json.dumps([song.as_dictionary() for song in songs])
-	"""
-	following query and print statements is to view data 
+
+	"""Following query and print statements is to view data 
 	from both tables in the database
-	"""
 	file_data = json.dumps([file.as_dictionary() for file in files])
 	#begin print statements
 	print("songs_get data is {}".format(data))
@@ -33,6 +32,7 @@ def songs_get():
 	print ""
 	print("files info is {}".format(file_data))
 	##end of print statements
+	"""
 	return Response(data, 200, mimetype="application/json")
 
 """endpoint for returning a single song"""
@@ -58,18 +58,25 @@ def song_get(id):
 def song_post():
 	data = request.json
 	song = models.Song(file_id=data['file']['id'])
-	print("data from request.json in song_post() is {}".format(data))
-	print ("data from ['file']['id'] is {}".format(data['file']['id']))
-	#print("session.query(models.File).get(data['file']['id']) is {}".format(session.query(models.File).get(data['file']['id'])))
-	#song = models.Song(file=session.query(models.File).get(data['file']['id']))
 	session.add(song)
 	session.commit()
+
+	"""Print outs to view how data looks during execution above
+	print("print outs from song_post()")
+	print("data from request.json in song_post() is {}".format(data))
+	print ("data from ['file']['id'] is {}".format(data['file']['id']))
+	print("session.query(models.File).get(data['file']['id']) is {}".format(session.query(models.File).get(data['file']['id'])))
+	song = models.Song(file=session.query(models.File).get(data['file']['id']))
+	"""
 
 	data = json.dumps(song.as_dictionary())
 	headers = {"Location": url_for("song_get", id=song.id)}
 
 	response_info = Response(data, 201, headers=headers, mimetype="application/json")
-	print ("song_post response inf {}".format(response_info.data))
+
+	"""Print out to view how info above looks
+	print ("final song_post response inf {}".format(response_info.data))
+	"""
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
 """endpoint for editing a song"""
@@ -78,13 +85,22 @@ def song_post():
 @decorators.require("application/json")
 def song_edit(id):
 	song = session.query(models.Song).get(id)
-	song_file = session.query(models.File).filter_by(id=song.id)
+	song_file = session.query(models.File).filter_by(id=song.file_id).first()
 	data = request.json
-
 	song_file.filename = data["filename"]
 	session.commit()
 
+	"""Print outs to veiw how data looks during execution above
+	print("print outs from song_edit()")
+	print("Orig son file data is {}".format(song.as_dictionary()))
+	print("Orig file data is {}".format(song_file.as_dictionary()))
+	print("data from test is showing as {}".format(data))
+	"""
 	data = json.dumps(song.as_dictionary())
+
+	"""Print out to see how data above looks
+	print("song_edit() final response data")
+	"""
 	headers = {"Location": url_for("song_get", id=id)}
 
 	return Response(data, 201, headers=headers, mimetype="application/json")
@@ -120,5 +136,8 @@ def file_post():
 
 	#return file information
 	data = db_file.as_dictionary()
+
+	"""View how data above looks
 	print ("file data from file_post() is {}".format(data))
+	"""
 	return Response(json.dumps(data), 201, mimetype="application/json")
