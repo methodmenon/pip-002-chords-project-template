@@ -18,13 +18,13 @@ from utils import upload_path
 @decorators.accept("application/json")
 def songs_get():
 	songs = session.query(models.Song).all()
-	files = session.query(models.File).all()
 
 	"""return the list of songs as JSON"""
 	data = json.dumps([song.as_dictionary() for song in songs])
 
 	"""Following query and print statements is to view data 
 	from both tables in the database
+	files = session.query(models.File).all()
 	file_data = json.dumps([file.as_dictionary() for file in files])
 	#begin print statements
 	print("songs_get data is {}".format(data))
@@ -61,22 +61,21 @@ def song_post():
 	session.add(song)
 	session.commit()
 
-	"""Print outs to view how data looks during execution above"""
+	"""Print outs to view how data looks during execution above
 	print("print outs from song_post()")
 	print("data from request.json in song_post() is {}".format(data))
 	print ("data from ['file']['id'] is {}".format(data['file']['id']))
 	print("session.query(models.File).get(data['file']['id']) is {}".format(session.query(models.File).get(data['file']['id'])))
-	#this_song = models.Song(file=session.query(models.File).get(data['file']['id']))
-	#print("this song is {}".format(this_song))
+	"""
 
 	data = json.dumps(song.as_dictionary())
 	headers = {"Location": url_for("song_get", id=song.id)}
 
 	response_info = Response(data, 201, headers=headers, mimetype="application/json")
 
-	"""Print out to view how info above looks"""
+	"""Print out to view how info above looks
 	print ("final song_post response inf {}".format(response_info.data))
-
+	"""
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
 """endpoint for editing a song"""
@@ -85,22 +84,28 @@ def song_post():
 @decorators.require("application/json")
 def song_edit(id):
 	song = session.query(models.Song).get(id)
+
+	if not song:
+		message = "Could not find song with id {}".format(id)
+		data = json.dumps({"message": message})
+		return Response(data, 404, mimetype="application/json")
+
 	song_file = session.query(models.File).filter_by(id=song.file_id).first()
 	data = request.json
 	song_file.filename = data["filename"]
 	session.commit()
 
-	"""Print outs to veiw how data looks during execution above"""
+	"""Print outs to veiw how data looks during execution above
 	print("print outs from song_edit()")
 	print("Orig son file data is {}".format(song.as_dictionary()))
 	print("Orig file data is {}".format(song_file.as_dictionary()))
 	print("data from test is showing as {}".format(data))
-	
+	"""
 	data = json.dumps(song.as_dictionary())
 
-	"""Print out to see how data above looks"""
+	"""Print out to see how data above looks
 	print("song_edit() final response data")
-	
+	"""
 	headers = {"Location": url_for("song_get", id=id)}
 
 	return Response(data, 201, headers=headers, mimetype="application/json")

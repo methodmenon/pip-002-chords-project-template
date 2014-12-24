@@ -1,0 +1,58 @@
+1) y, sr = librosa.loads(file)
+load an audiofile as a floating point time series
+
+returns: y ->  an audio time series (np.ndarray[shape=(n,) or (n,2)])
+	 sr -> sampling rate (int > 0)
+
+2) y = librosa.resample(y, orig_sr, target_sr)
+resamples a time series from original sample rate to target samplerate
+
+returns: y -> resampled sample rate (np.ndarray[shape=(n*target_sr/orig_sr)])
+
+3) tempo, beats = librosa.beat.beat_track(y=None, sr=22050, onset_envelope=None, hop_length=64, start_bpm=120.0, tightness=400, trim=True, bpm=None)
+Dynamic programming beat tracker. Tracks beats using time series input or a pre-computed onset envelope.
+Which detects beats in 3 stages:
+	i)  Measure onset strength
+	ii) Estimiate tempo from onset correlation
+	iii)Pick beats in onset strength approximately consistent with estimated tempo
+
+returns: tempo -> estimated global tempo (in beats per minute) (float[scalar])
+	 beats -> frame numbers of estimated beat events (np.ndarray[shape=(m,)])
+
+Raises ValueError -> if neither y, or onset_envelope are provided
+
+4) chromogram = librosa.feature.chromogram(y, sr)
+Draw a chromogram with pitch classes
+
+returns chromogram -> image, returned from matplotlib.pyplot.imshow (matplotlib.image.AxesImage)
+
+5) p = numpy.transpose(a, axes=None)
+Permute the dimensions of an array
+
+inputs: a-> array-like input array
+	axes -> list of ints (optional)
+
+returns: p -> array with axes permuted, view is returned when possible (ndarray)
+
+6) Y = scipy.spatial.distance.cdist(XA, XB, metric='euclidean', p=2, V=None, VI=None, w=None)
+Computes the distances between each pair of the 2 collection of inputs
+
+inputs: XA, XB ->  both ndarrays
+	metric -> distance metric to use (ie:distance function can be: correlation, cosine, chebyshev, etc)
+
+returns:  Y -> distance matrix (ndarray)
+
+Raises exception thrown if XA, XB do not have same number of columns
+
+7) i = ndarray.argmin(axis=a, out=None)
+Return the indices of the minimum values along the given axis of a
+
+8) out = scipy.signal.medfilt(volume, kernel_size=None)
+Perform a median filter on an N-dim array.
+Apply a median filter to the input array using a local window-size given by kernel_size
+
+Parameters: volume-> n-dimensional input array (array-like)
+	    kernal-size-> (Scalar or N-length)List giving the size of the median filter window in each dimension.
+		 	   Element number should be odd. If kernal_size is a scaler -> 
+									this scalar is used as the size in each dimension. Def size is 3.
+Returns: out -> array same sized as input, containing the median-filtered result (ndarray)
