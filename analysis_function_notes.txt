@@ -16,13 +16,23 @@ Which detects beats in 3 stages:
 	ii) Estimiate tempo from onset correlation
 	iii)Pick beats in onset strength approximately consistent with estimated tempo
 
+paramters: y-> audio time series (np.ndarray[shape=(n,)] or None)
+		   sr-> sampling rate (int>0 [scalar])
+		   hop_length-> number of audio samples between successive onset_envelope values
+
 returns: tempo -> estimated global tempo (in beats per minute) (float[scalar])
 	 beats -> frame numbers of estimated beat events (np.ndarray[shape=(m,)])
 
 Raises ValueError -> if neither y, or onset_envelope are provided
 
-4) chromogram = librosa.feature.chromogram(y, sr)
+4) chromogram = librosa.feature.chromogram(data, sr=22050, hop_length=512, x_axis=None, y_axis=None, n_xticks=5, n_yticks=5, fmin=None, fmax=None, bins_per_octave=12, **kwargs)
+
 Draw a chromogram with pitch classes
+
+parameters data-> matrix to display (np.ndarray[shape=(d,n)])
+		   sr-> samplerate used (int > 0 [scalar])
+		   hop_length-> usded to determine time scale in x-axis (int > 0 [scalar])
+		   n_fft-> FFT windows size (int > 0 [scalar])
 
 returns chromogram -> image, returned from matplotlib.pyplot.imshow (matplotlib.image.AxesImage)
 
@@ -46,6 +56,7 @@ Raises exception thrown if XA, XB do not have same number of columns
 
 7) i = ndarray.argmin(axis=a, out=None)
 Return the indices of the minimum values along the given axis of a
+axis=0 reps the columns, axis=1 reps the rows)
 
 8) out = scipy.signal.medfilt(volume, kernel_size=None)
 Perform a median filter on an N-dim array.
@@ -56,3 +67,48 @@ Parameters: volume-> n-dimensional input array (array-like)
 		 	   Element number should be odd. If kernal_size is a scaler -> 
 									this scalar is used as the size in each dimension. Def size is 3.
 Returns: out -> array same sized as input, containing the median-filtered result (ndarray)
+
+9) diff = numpy.diff(a, n=1, axis=-1)
+Calculate the n-th order discrete difference along a given axis
+First order difference is is given by out[n] = a[n+1] - a[n] along given axis, higher order diffs are calc using diff recursively
+
+Parameters: a-> input_array (array_like)
+            n -> number of times values are differenced (int, optional)
+	    axis -> axis along which difference is taken, def to last axis
+
+Input: diff -> the n order differences (ndarray)
+
+10) a = numpy.where(condition[x,y])
+Return elements from either x or y, depending on the condition
+If only condition, return condition.nonzero()
+
+Parameters: condition-> When True, yeild x, else yeild (array_like, bool)
+	    [x,y]-> values from which to choose x,y need to have same shape as condition
+
+Output: a-> if both x,y specified--> output array contains elements of x where condtion is True, and elements of y where condition is True.
+            if only condition given--> a returns the tuple, condition.nonzero(), the indices where condition is True
+
+
+11) a = numpy.array(object)
+Creates an array
+
+output a-> an array object satisfying the specified requirements
+
+12) arr_t = ndarray.astype(dtype, order='K', casting='unsafe', subok=True, copy=True)
+Copy of the array, cast to a specified type
+
+Parameters dtype-> Typecode or data type to which the array is cast (str or dtype)
+
+Returns  arr_t-> new array of same shape as input array, with dtype (ndarray)
+
+Raises ComplexWarning-> when casting from complex to float or int (avoid using a.rea.astype(t))
+
+12) chords[chord_frames][0].astype(int)
+
+14) times = librosa.core.frames_to_time(frames, sr=22050, hop_length=512, n_fft=None))
+converts frame counts to time(seconds)
+
+Paramters: frames-> vector of frame numbers (np.ndarray[shape=(n,)])
+	   sr-> audio sampling rate (int > 0 [scalar])
+           hop_length-> # samples between successive frames (int > 0 [scalar])
+	   n_fft-> (optional) length of the FFT window (None or int > 0 [scalar])

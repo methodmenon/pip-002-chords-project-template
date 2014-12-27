@@ -73,9 +73,9 @@ def song_post():
 
 	response_info = Response(data, 201, headers=headers, mimetype="application/json")
 
-	"""Print out to view how info above looks
+	#Print out to view how info above looks
 	print ("final song_post response inf {}".format(response_info.data))
-	"""
+	
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
 """endpoint for editing a song"""
@@ -109,6 +109,27 @@ def song_edit(id):
 	headers = {"Location": url_for("song_get", id=id)}
 
 	return Response(data, 201, headers=headers, mimetype="application/json")
+
+"""endpoint for audio analysis"""
+@app.route("/api/songs/<int:id>/analysis")
+#@decorators.accept("application/json")
+#@decorators.require("application/json")
+def song_analyze(id):
+	#check wether a song with the correct ID exists
+	song = session.query(models.Song).get(id)
+	if not song:
+		message = "Could not find song with id {}".format(id)
+		data = json.dumps({"message": message})
+		return Response(data, 404, mimetype="application/json")
+	#get the filename of the song from the database
+	song_file = session.query(models.File).filter_by(id=song.file_id).first()
+	#save file to an upload folder using upload_path() function
+	song_file_path = upload_path(song_file.filename)
+	#call analyse function, passing in path of the uploaded file
+	file_analysis = analysis.analyse(song_file_path)
+	data = json.dumps(file_analysis)
+	#return results of analysis function as a JSON object
+	return Response(data, 201, mimetype="application/json")
 
 """endpoint for accessing a file"""
 @app.route("/uploads/<filename>", methods=["GET"])
