@@ -287,3 +287,9 @@ class TestAPI(unittest.TestCase):
         with open(path) as f:
             contents = f.read()
         self.assertEqual(contents, "File contents")
+
+"""need a test for delete"""
+
+"""need a test for analysis"""
+
+"""need a test for incorrect data"""

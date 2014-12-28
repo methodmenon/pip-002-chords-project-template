@@ -110,6 +110,29 @@ def song_edit(id):
 
 	return Response(data, 201, headers=headers, mimetype="application/json")
 
+"""end point for deleting a song"""
+@app.route("/api/songs/<int:id>/delete", methods=["GET", "POST"])
+#@decorators.accept("application/json")
+#@decorators.require("application/json")
+def song_delete(id):
+	song = session.query(models.Song).get(id)
+
+	if not song:
+		message = "Could not find song with id {}".format(id)
+		data = json.dumps({"message":message})
+		return Response(data, 404, mimetype="application/json")
+
+	song_file = session.query(models.File).filter_by(id=song.file_id).first()
+	print song_file.filename
+	os.remove(upload_path(song_file.filename))
+	session.delete(song_file)
+	session.commit()
+
+	message = "Song with id {} has been deleted".format(id)
+	data = json.dumps({"message":message})
+	return Response(data, 201, mimetype="application/json")
+
+
 """endpoint for audio analysis"""
 @app.route("/api/songs/<int:id>/analysis")
 #@decorators.accept("application/json")
